@@ -436,8 +436,16 @@ def conversation2(request: KKRequest, ai_config: AIConfig):
             return resp
         else:
             user_input = resp.data.get("user_input")
-            agent.exec_command(request, user_input)
-            resp = agent.exec_chat()
+            if user_input.strip() == "n":
+                settings_file_name = "kaokao_{}_autogpt_settings.yaml".format(request.uid)
+                os.remove(settings_file_name)
+                return success_response({
+                    "step": 1,
+                    "info": "> 欢迎来到ZelinAI！请输入你专属的<font color=\"#18a91c\">AI名称</font>，比如\"市场调研AI\"<br />"
+                })
+            else:
+                agent.exec_command(request, user_input)
+                resp = agent.exec_chat()
 
     else:
         resp = response(

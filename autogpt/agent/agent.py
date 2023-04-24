@@ -315,12 +315,12 @@ class Agent:
     def input_command(self, input: str):
 
         if input.lower().strip() == "y":
-            user_input = "GENERATE NEXT COMMAND JSON"
+            user_input = "y"
             return success_response({
                 "user_input": user_input
             })
         elif input.lower() == "n":
-            user_input = "EXIT"
+            user_input = "n"
             return success_response({
                 "user_input": user_input
             })
