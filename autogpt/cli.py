@@ -415,7 +415,6 @@ def conversation2(request: KKRequest, ai_config: AIConfig):
         triggering_prompt=triggering_prompt,
         workspace_directory=workspace_directory,
     )
-    agent.start_interaction_loop()
 
     if request.step == 3:
         resp = agent.exec_chat()
