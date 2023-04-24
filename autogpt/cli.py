@@ -1,4 +1,6 @@
 """Main script for the autogpt package."""
+import os
+
 import click
 import logging
 import sys
@@ -74,20 +76,20 @@ from autogpt.kk_common import success_response, response, KKRequest
 )
 @click.pass_context
 def main(
-    ctx: click.Context,
-    continuous: bool,
-    continuous_limit: int,
-    ai_settings: str,
-    skip_reprompt: bool,
-    speak: bool,
-    debug: bool,
-    gpt3only: bool,
-    gpt4only: bool,
-    memory_type: str,
-    browser_name: str,
-    allow_downloads: bool,
-    skip_news: bool,
-    workspace_directory: str,
+        ctx: click.Context,
+        continuous: bool,
+        continuous_limit: int,
+        ai_settings: str,
+        skip_reprompt: bool,
+        speak: bool,
+        debug: bool,
+        gpt3only: bool,
+        gpt4only: bool,
+        memory_type: str,
+        browser_name: str,
+        allow_downloads: bool,
+        skip_news: bool,
+        workspace_directory: str,
 ) -> None:
     """
     Welcome to AutoGPT an experimental open-source application showcasing the capabilities of the GPT-4 pushing the boundaries of AI.
@@ -216,6 +218,13 @@ app = FastAPI()
 def conversation(request: KKRequest):
 
     settings_file_name = "kaokao_{}_autogpt_settings.yaml".format(request.uid)
+    if request.content == "kk_reset0":
+        os.remove(settings_file_name)
+        return success_response({
+            "step": 1,
+            "info": "> 欢迎来到ZelinAI！请输入你专属的<font color=\"#18a91c\">AI名称</font>，比如\"市场调研AI\"<br />"
+        })
+
     config = AIConfig.load(settings_file_name)
     if not config.ai_name:
 
@@ -232,7 +241,8 @@ def conversation(request: KKRequest):
                 config.save(settings_file_name)
                 return success_response({
                     "step": 2,
-                    "info": "> 你好，我是<font color=\"#5a64d6\">{}</font>，你的专属AI！接下来请输入<font color=\"#18a91c\">我的角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(config.ai_name)
+                    "info": "> 你好，我是<font color=\"#5a64d6\">{}</font>，你的专属AI！接下来请输入<font color=\"#18a91c\">我的角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(
+                        config.ai_name)
                 })
             else:
                 return response(
@@ -271,7 +281,8 @@ def conversation(request: KKRequest):
                     "AI角色内容为空",
                     {
                         "step": 2,
-                        "info": "> 请先初始化{}的<font color=\"#18a91c\">AI角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(config.ai_name)
+                        "info": "> 请先初始化{}的<font color=\"#18a91c\">AI角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(
+                            config.ai_name)
                     }
                 )
 
@@ -281,7 +292,8 @@ def conversation(request: KKRequest):
                 "AI角色未初始化",
                 {
                     "step": 2,
-                    "info": "> 请先初始化{}的<font color=\"#18a91c\">AI角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(config.ai_name)
+                    "info": "> 请先初始化{}的<font color=\"#18a91c\">AI角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(
+                        config.ai_name)
                 }
             )
 
