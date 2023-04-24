@@ -319,7 +319,7 @@ class Agent:
             return success_response({
                 "user_input": user_input
             })
-        elif input.lower() == "n":
+        elif input.lower().strip() == "n":
             user_input = "n"
             return success_response({
                 "user_input": user_input

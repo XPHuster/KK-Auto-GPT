@@ -431,21 +431,28 @@ def conversation2(request: KKRequest, ai_config: AIConfig):
         resp = agent.exec_chat()
 
     elif request.step == 6:
-        resp = agent.input_command(request.content)
-        if not resp.success():
-            return resp
+
+        if request.content.lower().strip() == "y":
+            agent.exec_command(request, "GENERATE NEXT COMMAND JSON")
+            return agent.exec_chat()
+        elif request.content.lower().strip() == "n":
+            user_input = "EXIT"
+            settings_file_name = "kaokao_{}_autogpt_settings.yaml".format(request.uid)
+            os.remove(settings_file_name)
+            return success_response({
+                "step": 1,
+                "info": "> 欢迎来到ZelinAI！请输入你专属的<font color=\"#18a91c\">AI名称</font>，比如\"市场调研AI\"<br />"
+            })
         else:
-            user_input = resp.data.get("user_input")
-            if user_input.strip() == "n":
-                settings_file_name = "kaokao_{}_autogpt_settings.yaml".format(request.uid)
-                os.remove(settings_file_name)
-                return success_response({
-                    "step": 1,
-                    "info": "> 欢迎来到ZelinAI！请输入你专属的<font color=\"#18a91c\">AI名称</font>，比如\"市场调研AI\"<br />"
-                })
-            else:
-                agent.exec_command(request, user_input)
-                resp = agent.exec_chat()
+            print("Invalid input format.")
+            return response(
+                10005,
+                "无效输入",
+                {
+                    "step": 6,
+                    "info": "> Invalid input format. Please re-input.<br />"
+                }
+            )
 
     else:
         resp = response(
