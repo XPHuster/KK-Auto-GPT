@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import openai
 
@@ -28,9 +28,9 @@ class ApiManager:
     def create_chat_completion(
         self,
         messages: list,  # type: ignore
-        model: str | None = None,
+        model: Optional[str] = None,
         temperature: float = cfg.temperature,
-        max_tokens: int | None = None,
+        max_tokens: Optional[int] = None,
         deployment_id=None,
     ) -> str:
         """

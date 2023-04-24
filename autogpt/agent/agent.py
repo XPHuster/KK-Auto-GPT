@@ -5,6 +5,7 @@ from autogpt.chat import chat_with_ai, create_chat_message
 from autogpt.config import Config
 from autogpt.json_utils.json_fix_llm import fix_json_using_multiple_techniques
 from autogpt.json_utils.utilities import validate_json
+from autogpt.kk_common import KKRequest, success_response, response
 from autogpt.logs import logger, print_assistant_thoughts
 from autogpt.speech import say_text
 from autogpt.spinner import Spinner
@@ -63,6 +64,7 @@ class Agent:
         self.system_prompt = system_prompt
         self.triggering_prompt = triggering_prompt
         self.workspace = Workspace(workspace_directory, cfg.restrict_to_workspace)
+        self.assistant_reply = ""
 
     def start_interaction_loop(self):
         # Interaction Loop
@@ -243,3 +245,146 @@ class Agent:
                         self.workspace.get_path(command_args[pathlike])
                     )
         return command_args
+
+    def exec_chat(self):
+        # Interaction Loop
+        cfg = Config()
+        command_name = None
+        arguments = None
+
+        # Send message to AI, get response
+        with Spinner("Thinking... "):
+            assistant_reply = chat_with_ai(
+                self.system_prompt,
+                self.triggering_prompt,
+                self.full_message_history,
+                self.memory,
+                cfg.fast_token_limit,
+            )  # TODO: This hardcodes the model to use GPT3.5. Make this an argument
+
+        assistant_reply_json = fix_json_using_multiple_techniques(assistant_reply)
+        for plugin in cfg.plugins:
+            if not plugin.can_handle_post_planning():
+                continue
+            assistant_reply_json = plugin.post_planning(self, assistant_reply_json)
+
+        # Print Assistant thoughts
+        if assistant_reply_json != {}:
+            validate_json(assistant_reply_json, "llm_response_format_1")
+            # Get command name and arguments
+            try:
+                print_assistant_thoughts(self.ai_name, assistant_reply_json)
+                command_name, arguments = get_command(assistant_reply_json)
+                if cfg.speak_mode:
+                    say_text(f"I want to execute {command_name}")
+                arguments = self._resolve_pathlike_command_args(arguments)
+
+            except Exception as e:
+                logger.error("Error: \n", str(e))
+
+        ### GET USER AUTHORIZATION TO EXECUTE COMMAND ###
+        # Get key press: Prompt the user to press enter to continue or escape
+        # to exit
+        logger.typewriter_log(
+            "NEXT ACTION: ",
+            Fore.CYAN,
+            f"COMMAND = {Fore.CYAN}{command_name}{Style.RESET_ALL}  "
+            f"ARGUMENTS = {Fore.CYAN}{arguments}{Style.RESET_ALL}",
+        )
+        print(
+            "Enter 'y' to authorise command, 'y -N' to run N continuous "
+            "commands, 'n' to exit program, or enter feedback for "
+            f"{self.ai_name}...",
+            flush=True,
+        )
+        return success_response({
+            "step": 6,
+            "info": "下一步: 命令 = {}, 参数 = {}\n 输入 'y' 自动执行指令, 'n' 退出程序".format(command_name, arguments),
+            "extras": {
+                "thoughts": assistant_reply_json,
+                "command_name": command_name,
+                "arguments": arguments,
+            }
+        })
+
+
+    def input_command(self, input: str):
+
+        if input.lower().strip() == "y":
+            user_input = "GENERATE NEXT COMMAND JSON"
+            return success_response({
+                "user_input": user_input
+            })
+        elif input.lower() == "n":
+            user_input = "EXIT"
+            return success_response({
+                "user_input": user_input
+            })
+        else:
+            print("Invalid input format.")
+            return response(
+                10005,
+                "无效输入",
+                {
+                    "step": 6,
+                    "info": "请重新输入：'y' 自动执行指令, 'n' 退出程序"
+                }
+            )
+
+
+    def exec_command(self, request: KKRequest, user_input: str):
+
+        # Execute command
+        cfg = Config()
+        command_name = request.extras.get("command_name")
+        arguments = request.extras.get("arguments")
+        if command_name is not None and command_name.lower().startswith("error"):
+            result = (
+                f"Command {command_name} threw the following error: {arguments}"
+            )
+        else:
+            for plugin in cfg.plugins:
+                if not plugin.can_handle_pre_command():
+                    continue
+                command_name, arguments = plugin.pre_command(
+                    command_name, arguments
+                )
+            command_result = execute_command(
+                self.command_registry,
+                command_name,
+                arguments,
+                self.config.prompt_generator,
+            )
+            result = f"Command {command_name} returned: " f"{command_result}"
+
+            for plugin in cfg.plugins:
+                if not plugin.can_handle_post_command():
+                    continue
+                result = plugin.post_command(command_name, result)
+            if self.next_action_count > 0:
+                self.next_action_count -= 1
+
+        if command_name != "do_nothing":
+            memory_to_add = (
+                f"Assistant Reply: {self.assistant_reply} "
+                f"\nResult: {result} "
+                f"\nHuman Feedback: {user_input} "
+            )
+
+            self.memory.add(memory_to_add)
+
+            # Check if there's a result from the command append it to the message
+            # history
+            if result is not None:
+                self.full_message_history.append(
+                    create_chat_message("system", result)
+                )
+                logger.typewriter_log("SYSTEM: ", Fore.YELLOW, result)
+            else:
+                self.full_message_history.append(
+                    create_chat_message("system", "Unable to execute command")
+                )
+                logger.typewriter_log(
+                    "SYSTEM: ", Fore.YELLOW, "Unable to execute command"
+                )
+
