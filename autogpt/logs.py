@@ -296,7 +296,7 @@ def print_assistant_thoughts(ai_name, assistant_reply):
 
 def print_assistant_thoughts(
     ai_name: object, assistant_reply_json_valid: object
-) -> None:
+) -> str:
     assistant_thoughts_reasoning = None
     assistant_thoughts_plan = None
     assistant_thoughts_speak = None
@@ -312,9 +312,12 @@ def print_assistant_thoughts(
     logger.typewriter_log(
         f"{ai_name.upper()} THOUGHTS:", Fore.YELLOW, f"{assistant_thoughts_text}"
     )
+    thoughts = "<font color=\"#c4c028\">{} THOUGHTS: </font>{}<br />".format(ai_name.upper(), assistant_thoughts_text)
     logger.typewriter_log("REASONING:", Fore.YELLOW, f"{assistant_thoughts_reasoning}")
+    thoughts += "<font color=\"#c4c028\">REASONING: </font>{}<br />".format(assistant_thoughts_reasoning)
     if assistant_thoughts_plan:
         logger.typewriter_log("PLAN:", Fore.YELLOW, "")
+        thoughts += "<font color=\"#c4c028\">PLAN: </font><br />"
         # If it's a list, join it into a string
         if isinstance(assistant_thoughts_plan, list):
             assistant_thoughts_plan = "\n".join(assistant_thoughts_plan)
@@ -326,7 +329,10 @@ def print_assistant_thoughts(
         for line in lines:
             line = line.lstrip("- ")
             logger.typewriter_log("- ", Fore.GREEN, line.strip())
+            thoughts += "<font color=\"#118714\">- </font>{}<br />".format(line.strip())
     logger.typewriter_log("CRITICISM:", Fore.YELLOW, f"{assistant_thoughts_criticism}")
+    thoughts += "<font color=\"#c4c028\">CRITICISM: </font>{}<br />".format(assistant_thoughts_criticism)
     # Speak the assistant's thoughts
     if CFG.speak_mode and assistant_thoughts_speak:
         say_text(assistant_thoughts_speak)
+    return thoughts

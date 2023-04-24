@@ -222,7 +222,7 @@ def conversation(request: KKRequest):
         if request.step == 0:
             return success_response({
                 "step": 1,
-                "info": "欢迎来到ZelinAI！请输入你专属的AI名称，比如\"市场调研AI\""
+                "info": "> 欢迎来到ZelinAI！请输入你专属的<font color=\"#18a91c\">AI名称</font>，比如\"市场调研AI\"<br />"
             })
 
         elif request.step == 1:
@@ -232,7 +232,7 @@ def conversation(request: KKRequest):
                 config.save(settings_file_name)
                 return success_response({
                     "step": 2,
-                    "info": "你好，我是{}，你的专属AI！接下来请输入我的角色，比如\"一个熟练做市场分析的AI\"".format(config.ai_name)
+                    "info": "> 你好，我是<font color=\"#5a64d6\">{}</font>，你的专属AI！接下来请输入<font color=\"#18a91c\">我的角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(config.ai_name)
                 })
             else:
                 return response(
@@ -240,7 +240,7 @@ def conversation(request: KKRequest):
                     "AI名称内容为空",
                     {
                         "step": 1,
-                        "info": "请先初始化你专属的AI名称，比如\"市场调研AI\""
+                        "info": "> 请先初始化你专属的<font color=\"#18a91c\">AI名称</font>，比如\"市场调研AI\"<br />"
                     }
                 )
 
@@ -250,7 +250,7 @@ def conversation(request: KKRequest):
                 "AI名称未初始化",
                 {
                     "step": 1,
-                    "info": "请先初始化你专属的AI名称，比如\"市场调研AI\""
+                    "info": "> 请先初始化你专属的<font color=\"#18a91c\">AI名称</font>，比如\"市场调研AI\"<br />"
                 }
             )
 
@@ -263,7 +263,7 @@ def conversation(request: KKRequest):
                 config.save(settings_file_name)
                 return success_response({
                     "step": 3,
-                    "info": "接下来请输入你的目标，比如\"帮我分析一下冰淇淋市场\""
+                    "info": "> 接下来请输入<font color=\"#18a91c\">你的目标</font>，比如\"帮我分析一下冰淇淋市场\"<br />"
                 })
             else:
                 return response(
@@ -271,7 +271,7 @@ def conversation(request: KKRequest):
                     "AI角色内容为空",
                     {
                         "step": 2,
-                        "info": "请先初始化{}的AI角色，比如\"一个熟练做市场分析的AI\"".format(config.ai_name)
+                        "info": "> 请先初始化{}的<font color=\"#18a91c\">AI角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(config.ai_name)
                     }
                 )
 
@@ -281,7 +281,7 @@ def conversation(request: KKRequest):
                 "AI角色未初始化",
                 {
                     "step": 2,
-                    "info": "请先初始化{}的AI角色，比如\"一个熟练做市场分析的AI\"".format(config.ai_name)
+                    "info": "> 请先初始化{}的<font color=\"#18a91c\">AI角色</font>，比如\"一个熟练做市场分析的AI\"<br />".format(config.ai_name)
                 }
             )
 
@@ -300,7 +300,7 @@ def conversation(request: KKRequest):
                     "AI目标内容为空",
                     {
                         "step": 3,
-                        "info": "请输入你的目标，比如\"帮我分析一下冰淇淋市场\""
+                        "info": "> 请输入<font color=\"#18a91c\">你的目标</font>，比如\"帮我分析一下冰淇淋市场\"<br />"
                     }
                 )
 
@@ -310,7 +310,7 @@ def conversation(request: KKRequest):
                 "AI目标未初始化",
                 {
                     "step": 3,
-                    "info": "请输入你的目标，比如\"帮我分析一下冰淇淋市场\""
+                    "info": "> 请输入<font color=\"#18a91c\">你的目标</font>，比如\"帮我分析一下冰淇淋市场\"<br />"
                 }
             )
 

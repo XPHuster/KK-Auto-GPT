@@ -269,11 +269,12 @@ class Agent:
             assistant_reply_json = plugin.post_planning(self, assistant_reply_json)
 
         # Print Assistant thoughts
+        thoughts = ""
         if assistant_reply_json != {}:
             validate_json(assistant_reply_json, "llm_response_format_1")
             # Get command name and arguments
             try:
-                print_assistant_thoughts(self.ai_name, assistant_reply_json)
+                thoughts = print_assistant_thoughts(self.ai_name, assistant_reply_json)
                 command_name, arguments = get_command(assistant_reply_json)
                 if cfg.speak_mode:
                     say_text(f"I want to execute {command_name}")
@@ -291,15 +292,17 @@ class Agent:
             f"COMMAND = {Fore.CYAN}{command_name}{Style.RESET_ALL}  "
             f"ARGUMENTS = {Fore.CYAN}{arguments}{Style.RESET_ALL}",
         )
+        thoughts += "<font color=\"#169495\">NEXT ACTION: </font>COMMAND = {}, ARGUMENTS = {}<br />".format(command_name, arguments)
         print(
             "Enter 'y' to authorise command, 'y -N' to run N continuous "
             "commands, 'n' to exit program, or enter feedback for "
             f"{self.ai_name}...",
             flush=True,
         )
+        thoughts += "Enter 'y' to authorise command, 'n' to exit program<br />"
         return success_response({
             "step": 6,
-            "info": "下一步: 命令 = {}, 参数 = {}\n 输入 'y' 自动执行指令, 'n' 退出程序".format(command_name, arguments),
+            "info": "> " + thoughts,
             "extras": {
                 "thoughts": assistant_reply_json,
                 "command_name": command_name,
@@ -327,7 +330,7 @@ class Agent:
                 "无效输入",
                 {
                     "step": 6,
-                    "info": "请重新输入：'y' 自动执行指令, 'n' 退出程序"
+                    "info": "> Invalid input format. Please re-input.<br />"
                 }
             )
 
