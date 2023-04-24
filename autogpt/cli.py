@@ -218,7 +218,7 @@ app = FastAPI()
 def conversation(request: KKRequest):
 
     settings_file_name = "kaokao_{}_autogpt_settings.yaml".format(request.uid)
-    if request.content == "kk_reset0":
+    if request.content.strip() == "kk_reset0":
         os.remove(settings_file_name)
         return success_response({
             "step": 1,
