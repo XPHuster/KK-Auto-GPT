@@ -381,7 +381,6 @@ def conversation2(request: KKRequest, ai_config: AIConfig):
     command_registry.import_commands("autogpt.commands.write_tests")
     command_registry.import_commands("autogpt.app")
 
-    ai_name = ""
     # ai_config = construct_main_ai_config()
     ai_config.command_registry = command_registry
     # print(prompt)
@@ -405,7 +404,7 @@ def conversation2(request: KKRequest, ai_config: AIConfig):
         logger.typewriter_log("Prompt:", Fore.GREEN, system_prompt)
 
     agent = Agent(
-        ai_name=ai_name,
+        ai_name=ai_config.ai_name,
         memory=memory,
         full_message_history=full_message_history,
         next_action_count=next_action_count,

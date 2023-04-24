@@ -293,7 +293,7 @@ class Agent:
             f"COMMAND = {Fore.CYAN}{command_name}{Style.RESET_ALL}  "
             f"ARGUMENTS = {Fore.CYAN}{arguments}{Style.RESET_ALL}",
         )
-        thoughts += "<font color=\"#169495\">NEXT ACTION: </font>COMMAND = {}, ARGUMENTS = {}<br />".format(command_name, arguments)
+        thoughts += "<font color=\"#169495\">NEXT ACTION: </font>COMMAND = <font color=\"#169495\">{}</font>, ARGUMENTS = <font color=\"#169495\">{}</font><br />".format(command_name, arguments)
         print(
             "Enter 'y' to authorise command, 'y -N' to run N continuous "
             "commands, 'n' to exit program, or enter feedback for "
