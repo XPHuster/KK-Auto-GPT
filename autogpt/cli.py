@@ -237,7 +237,7 @@ def conversation(request: KKRequest):
         elif request.step == 1:
 
             if request.content:
-                config.ai_name = request.content
+                config.ai_name = request.content.strip()
                 config.save(settings_file_name)
                 return success_response({
                     "step": 2,

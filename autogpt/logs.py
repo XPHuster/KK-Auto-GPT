@@ -312,7 +312,7 @@ def print_assistant_thoughts(
     logger.typewriter_log(
         f"{ai_name.upper()} THOUGHTS:", Fore.YELLOW, f"{assistant_thoughts_text}"
     )
-    thoughts = "<font color=\"#c4c028\">{} THOUGHTS: </font>{}<br />".format(ai_name.upper(), assistant_thoughts_text)
+    thoughts = "<font color=\"#c4c028\">{}&nbsp;&nbsp;THOUGHTS: </font>{}<br />".format(ai_name.upper(), assistant_thoughts_text)
     logger.typewriter_log("REASONING:", Fore.YELLOW, f"{assistant_thoughts_reasoning}")
     thoughts += "<font color=\"#c4c028\">REASONING: </font>{}<br />".format(assistant_thoughts_reasoning)
     if assistant_thoughts_plan:
