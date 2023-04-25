@@ -269,7 +269,7 @@ def conversation(request: KKRequest):
         if request.step == 2:
 
             if request.content:
-                config.ai_role = request.content
+                config.ai_role = request.content.strip()
                 config.save(settings_file_name)
                 return success_response({
                     "step": 3,
@@ -303,7 +303,7 @@ def conversation(request: KKRequest):
 
             if request.content:
                 config.ai_goals = []
-                config.ai_goals.append(request.content)
+                config.ai_goals.append(request.content.strip())
                 config.save(settings_file_name)
 
             else:
@@ -401,8 +401,8 @@ def conversation2(request: KKRequest, ai_config: AIConfig):
     next_action_count = 0
     # Make a constant:
     triggering_prompt = (
-        "Determine which next command to use, and respond using the"
-        " format specified above:"
+        "Determine which next command to use, and respond using the format specified above. Remember, you should "
+        "translate response into Chinese first and then return. "
     )
     # Initialize memory and make sure it is empty.
     # this is particularly important for indexing and referencing pinecone memory
